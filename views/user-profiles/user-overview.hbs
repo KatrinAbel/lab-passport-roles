@@ -1,0 +1,19 @@
+<h1>User Profile</h1>
+
+
+{{#each userData}}
+t
+
+<ul>
+
+{{#each userData}}
+<p>Profile Data</p>
+<li>Name: {{this.username}}</li>
+<li>Role: {{this.role}}</li>
+{{/each}}
+
+<button>
+  <a href="/users/user-profiles/edit">Edit</a>
+</button>
+
+</ul>

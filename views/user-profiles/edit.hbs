@@ -1,0 +1,15 @@
+<h2>Update your profile</h2>
+
+
+<form action="/users/user-profiles" method="POST">
+
+Username: <input type="text" name="username" value={{userData.username}}> <br>
+Role: <select name="role">
+      <option>Boss</option>
+      <option>TA</option>
+      <option>Developer</option>
+      </select> <br>
+
+<button type="submit">Update</button>
+
+</form>

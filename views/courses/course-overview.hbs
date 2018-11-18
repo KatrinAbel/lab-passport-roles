@@ -1,0 +1,17 @@
+<h2>Course Overview</h2>
+<ul>
+{{#each courseData}}
+  <li>
+    <a href="/users/{{this._id}}">{{this.title}}</a>
+  </li>
+
+  <form action="/users/course-overview/{{this._id}}/delete" method="POST">
+  <button type="submit">Delete</button>
+  </form>
+
+{{/each}}
+</ul>
+
+<button>
+  <a href="/users/new">New Course</a>
+</button>

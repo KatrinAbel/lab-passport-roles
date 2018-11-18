@@ -1,0 +1,16 @@
+<h2>Edit course</h2>
+
+<form action="/users/{{courseData.id}}" method="POST">
+
+Title: <input type="text" name="title" value={{courseData.title}}> <br>
+{{!-- How do I the correct bootcamp show up first? --}}
+Bootcamp: <select name="bootcamp" value={{courseData.bootcamp}}>
+          {{!-- 'How can I access the enum values from my model' --}}
+          <option>UI/UX</option>
+          <option>Web Dev</option>
+          </select> <br>
+
+
+<button type="submit">Update</button>
+
+</form>

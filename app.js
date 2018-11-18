@@ -9,13 +9,17 @@ const mongoose     = require('mongoose');
 const logger       = require('morgan');
 const path         = require('path');
 
+const session    = require("express-session");
+const MongoStore = require('connect-mongo')(session);
+const flash      = require("connect-flash");
+    
 
-mongoose.Promise = Promise;
 mongoose
-  .connect('mongodb://localhost/lab-passport-roles', {useMongoClient: true})
-  .then(() => {
-    console.log('Connected to Mongo!')
-  }).catch(err => {
+  .connect('mongodb://localhost/lab-passport-roles', {useNewUrlParser: true})
+  .then(x => {
+    console.log(`Connected to Mongo! Database name: "${x.connections[0].name}"`)
+  })
+  .catch(err => {
     console.error('Error connecting to mongo', err)
   });
 
@@ -32,11 +36,11 @@ app.use(cookieParser());
 
 // Express View engine setup
 
-app.use(require('node-sass-middleware')({
-  src:  path.join(__dirname, 'public'),
-  dest: path.join(__dirname, 'public'),
-  sourceMap: true
-}));
+// app.use(require('node-sass-middleware')({
+//   src:  path.join(__dirname, 'public'),
+//   dest: path.join(__dirname, 'public'),
+//   sourceMap: true
+// }));
       
 
 app.set('views', path.join(__dirname, 'views'));
@@ -45,14 +49,52 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(favicon(path.join(__dirname, 'public', 'images', 'favicon.ico')));
 
 
+hbs.registerHelper('ifUndefined', (value, options) => {
+  if (arguments.length < 2)
+      throw new Error("Handlebars Helper ifUndefined needs 1 parameter");
+  if (typeof value !== undefined ) {
+      return options.inverse(this);
+  } else {
+      return options.fn(this);
+  }
+});
+  
 
 // default value for title local
-app.locals.title = 'Express - Generated with IronGenerator';
+app.locals.title = 'Ironhack Bureau Investigation';
 
 
+// Enable authentication using session + passport
+app.use(session({
+  secret: 'irongenerator',
+  resave: true,
+  saveUninitialized: true,
+  store: new MongoStore( { mongooseConnection: mongoose.connection })
+}))
+app.use(flash());
+require('./passport')(app);
 
-const index = require('./routes/index');
-app.use('/', index);
+// Middleware for Navbar
+app.use((req,res,next) => {
+  
+  // if the user is connected, passport defined before a req.user
+  res.locals.isConnected = !!req.user
+  // !! converts truthy/falsy to true/false
 
+
+  // if the user has a certain role
+  res.locals.isTAorBoss = req.user && req.user.role === 'TA'|| req.user && req.user.role === "Boss"
+
+  res.locals.isBoss = req.user && req.user.role === "Boss"
+
+  // define local var user to display your profile info in layout.hbs
+  res.locals.user = req.user
+
+  next() // to go to the next middleware
+})
+
+app.use('/', require('./routes/index'));
+app.use('/users', require('./routes/users'));    
+app.use('/auth', require('./routes/auth'));
 
 module.exports = app;
